@@ -70,6 +70,7 @@
     "deps-ok": "^1.2.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-load-plugins": "^1.4.0",
+    "gulp-util": "^3.0.8",
     "jquery": "^3.1.1",
     "lodash": "^4.17.2",
     "react": "^15.0.0",
