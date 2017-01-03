@@ -14,20 +14,14 @@ RUN curl https://deb.nodesource.com/node_6.x/pool/main/n/nodejs/nodejs_6.7.0-1no
  && dpkg -i node.deb \
  && rm node.deb
 
-RUN npm install -g pangyp\
- && ln -s $(which pangyp) $(dirname $(which pangyp))/node-gyp\
- && npm cache clear\
- && node-gyp configure || echo ""
-
 RUN apt-get update \
  && apt-get upgrade -y --force-yes \
  && rm -rf /var/lib/apt/lists/*;
 
 # copy Node.js packages
 
-COPY ./src/package.json /app/src 
+COPY ./src/package.json /app/src/ 
 WORKDIR /app/src
-
 
 ENV NODE_ENV production
 
@@ -47,7 +41,7 @@ RUN "./node_modules/.bin/gulp --production"
 ENV DOTNET_CLI_TELEMETRY_OPTOUT 1
 
 COPY . /app
-
+WORKDIR /app
 
 RUN dotnet restore
 
