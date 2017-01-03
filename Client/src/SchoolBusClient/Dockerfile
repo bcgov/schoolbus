@@ -20,7 +20,7 @@ RUN apt-get update \
 
 # copy Node.js packages
 
-COPY ./src/package.json /app/src/ 
+COPY ../js/package.json /app/src/ 
 WORKDIR /app/src
 
 ENV NODE_ENV production
