@@ -1,12 +1,37 @@
-# Dev environment
+FROM microsoft/dotnet:1.1.0-sdk-projectjson
+# Dockerfile for package SchoolBusClient
 
-FROM node:6.9.1-wheezy
+# install rlwrap
+ 
+RUN apt-get update \
+ && apt-get upgrade -y --force-yes \
+ && apt-get install rlwrap \
+ && rm -rf /var/lib/apt/lists/*;
 
-RUN apt-get install -y git libfreetype6 libfontconfig
+# install Node.js
 
-RUN npm -g install gulp-cli
-RUN npm -g install nodemon
+RUN curl https://deb.nodesource.com/node_6.x/pool/main/n/nodejs/nodejs_6.7.0-1nodesource1~jessie1_amd64.deb > node.deb \
+ && dpkg -i node.deb \
+ && rm node.deb
 
-EXPOSE 80
+RUN apt-get update \
+ && apt-get upgrade -y --force-yes \
+ && rm -rf /var/lib/apt/lists/*;
 
-CMD ["nodemon", "--watch", "gulpfile.js", "--watch", "webpack.config.js", "--", "./node_modules/.bin/gulp", "--port=80"]
+# copy Node.js packages
+
+COPY /package.json /app/src/ 
+WORKDIR /app/src
+
+ENV NODE_ENV production
+
+RUN npm install
+
+# copy the full source
+COPY . /app/src 
+
+# compile the source
+
+RUN "./node_modules/.bin/gulp --production"  
+
+# End of Node.js portion.
