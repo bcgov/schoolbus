@@ -66,6 +66,7 @@
     "bluebird": "^3.3.4",
     "bootstrap": "^3.3.6",
     "del": "^2.2.2",
+    "deps-ok": "^1.2.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-load-plugins": "^1.4.0",
     "jquery": "^3.1.1",
