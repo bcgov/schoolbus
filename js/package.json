@@ -63,6 +63,7 @@
     "webpack-hot-middleware": "^2.13.2"
   },
   "dependencies": {
+    "babel-core": "^6.21.0",
     "bluebird": "^3.3.4",
     "bootstrap": "^3.3.6",
     "del": "^2.2.2",
