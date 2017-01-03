@@ -20,12 +20,16 @@ const DEFAULT_STATE = {
   dueNextMonthInspections : 0,
 };
 
-export default function userReducer(state = TEST_STATE, action) {
+export default function userReducer(state = DEFAULT_STATE, action) {
   var newState = {};
 
   switch(action.type) {
     case 'UPDATE_USER':
       newState = Object.assign({}, state, action.user);
+      break;
+
+    case 'TEST_USER':
+      newState = Object.assign({}, state, TEST_STATE);
       break;
   }
 

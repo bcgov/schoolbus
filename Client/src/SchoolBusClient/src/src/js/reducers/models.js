@@ -1,4 +1,4 @@
-const TEST_STATE = {
+const TEST_USERS = {
   users : [{
     userId                  : 1,
     firstName               : 'Rob',
@@ -24,13 +24,17 @@ const DEFAULT_STATE = {
   users : [],
 };
 
-export default function modelsReducer(state = TEST_STATE, action) {
+export default function modelsReducer(state = DEFAULT_STATE, action) {
   var newState = {};
 
   switch(action.type) {
     // Users
     case 'UPDATE_USERS':
       newState = Object.assign({}, state, action.users);
+      break;
+
+    case 'TEST_USERS':
+      newState = Object.assign({}, state, TEST_USERS);
       break;
   }
 

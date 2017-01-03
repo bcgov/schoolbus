@@ -18,7 +18,7 @@ var Home = React.createClass({
           <h2>You have <a href="#/school-buses">{this.props.currentUser.dueNextMonthInspections}</a> inspections coming due in the next month</h2>
         </Col>
         <Col md={4}>
-          <img id="home_image" src="../images/school_bus_home.png"/>
+          <img id="home_image" src="images/school_bus_home.png"/>
         </Col>
       </Row>
     </div>;

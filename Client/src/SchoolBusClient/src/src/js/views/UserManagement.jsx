@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { PageHeader } from 'react-bootstrap';
 import _ from 'lodash';
 
+import * as Api from '../api';
+
 
 var UserManagement = React.createClass({
   propTypes: {
@@ -10,12 +12,16 @@ var UserManagement = React.createClass({
     models      : React.PropTypes.object,
   },
 
+  componentWillMount: function() {
+    Api.getUsers();
+  },
+
   render: function() {
     return <div id="user-management">
       <PageHeader>User Management</PageHeader>
       {
         _.map(this.props.models.users, (user) => {
-          return <h2>{user.fullName}</h2>;
+          return <h2 key={user.userId}>{user.fullName}</h2>;
         })
       }
     </div>;

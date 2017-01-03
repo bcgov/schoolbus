@@ -10,6 +10,7 @@ Promise.config({
 
 
 import App from './app.jsx';
+import * as Api from './api';
 import { ApiError } from './utils/http';
 
 
@@ -37,6 +38,8 @@ function renderApp() {
 
 export default function startApp() {
   incrementProgressBar();
+
+  Api.getCurrentUser();
 
   Promise.all([]).then(() => {
     // Wrapping in a setTimeout to silence an error from Bluebird's promise lib about API requests
