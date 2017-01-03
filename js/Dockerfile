@@ -32,6 +32,6 @@ COPY . /app/src
 
 # compile the source
 
-RUN "./node_modules/.bin/gulp --production"  
+RUN ./node_modules/.bin/gulp --production  
 
 # End of Node.js portion.
