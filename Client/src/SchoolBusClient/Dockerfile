@@ -28,7 +28,7 @@ ENV NODE_ENV production
 RUN npm install
 
 # copy the full source
-COPY ./src /app/src 
+COPY ../js /app/src 
 
 # compile the source
 
