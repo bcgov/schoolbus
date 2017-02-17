@@ -162,7 +162,6 @@
     x-codegen-viewmodel: true
     required:
       - effectiveDate
-      - userId
       - roleId
     properties:
       id:
