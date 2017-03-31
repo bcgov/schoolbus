@@ -913,11 +913,11 @@ namespace SchoolBusAPI.Services.Impl
                         {
                             if (userRole.RoleId == item.RoleId)
                             {
-                                user.UserRoles.Remove(userRole);
+                                UserRole delete = _context.UserRoles.First(x => x.RoleId == item.RoleId && x.Id == userRole.Id);
+                                _context.Remove(delete);
                                 break;
                             }
                         }
-                        _context.Update(user);
                         _context.SaveChanges();
                         success = true;
                     }
