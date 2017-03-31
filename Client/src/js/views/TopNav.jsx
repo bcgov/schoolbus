@@ -10,17 +10,24 @@ import * as Constant from '../constants';
 
 import _ from 'lodash';
 import Spinner from '../components/Spinner.jsx';
-
+import { formatDateTime } from '../utils/date';
 
 var TopNav = React.createClass({
   propTypes: {
     currentUser: React.PropTypes.object,
     showWorkingIndicator: React.PropTypes.bool,
-    requestError: React.PropTypes.object,
+    requestError: React.PropTypes.object,   
+  },
+
+  getInitialState() {
+    return {
+      today: formatDateTime(Date(), 'YYYY-MM-DD'),
+ 
+    };
   },
 
   getIsCurrentUserAdmin () {
-    return _.some(this.props.currentUser.userRoles, ['roleId', 2]);
+    return _.some(this.props.currentUser.userRoles.filter((x)=>x.expiryDate> this.state.today && x.effectiveDate <= this.state.today  ), ['roleId', 2] );
   },
 
   render: function () {
