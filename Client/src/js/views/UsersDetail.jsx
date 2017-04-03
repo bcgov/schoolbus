@@ -257,7 +257,7 @@ var UsersDetail = React.createClass({
                         </td>
                         <td style={{ textAlign: 'right' }}>
                         {
-                          userRole.expiryDate ? null :
+                         // userRole.expiryDate ? null :
                           <OverlayTrigger trigger="click" placement="left" rootClose
                             overlay={ <ExpireOverlay userRole={ userRole } onSave={ this.updateUserRole }/> }
                           >

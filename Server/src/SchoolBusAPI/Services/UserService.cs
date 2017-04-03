@@ -192,6 +192,15 @@ namespace SchoolBusAPI.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <remarks>Delete a role to a user</remarks>
+        /// <param name="id">id of User to update</param>
+        /// <param name="item"></param>
+        /// <response code="201">Role created for user</response>
+        IActionResult UsersIdDeleteRolePostAsync(int id, UserRoleViewModel item);
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <remarks>Create new user</remarks>
         /// <param name="item"></param>
         /// <response code="201">User created</response>

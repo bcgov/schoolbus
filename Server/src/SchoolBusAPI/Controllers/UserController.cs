@@ -333,6 +333,22 @@ namespace SchoolBusAPI.Controllers
         /// <summary>
         /// 
         /// </summary>
+        /// <remarks>Delete a role to a user</remarks>
+        /// <param name="id">id of User to update</param>
+        /// <param name="item"></param>
+        /// <response code="201">Role created for user</response>
+        [HttpPost]
+        [Route("/api/users/{id}/deleteRole")]
+        [SwaggerOperation("UsersIdDeleteRolePost")]
+        [RequiresPermission(Permission.ADMIN)]
+        public virtual IActionResult UsersIdDeleteRolePost([FromRoute]int id, [FromBody]UserRoleViewModel item)
+        {
+            return this._service.UsersIdDeleteRolePostAsync(id, item);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <remarks>Create new user</remarks>
         /// <param name="item"></param>
         /// <response code="201">User created</response>

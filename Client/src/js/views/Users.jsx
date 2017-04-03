@@ -23,6 +23,7 @@ import MultiDropdown from '../components/MultiDropdown.jsx';
 import SortTable from '../components/SortTable.jsx';
 import Spinner from '../components/Spinner.jsx';
 import Unimplemented from '../components/Unimplemented.jsx';
+import { formatDateTime } from '../utils/date';
 
 
 var UserManagement = React.createClass({
@@ -39,7 +40,7 @@ var UserManagement = React.createClass({
   getInitialState() {
     return {
       loading: true,
-
+      today: formatDateTime(Date(), 'YYYY-MM-DD'),
       search: {
         selectedDistrictsIds: this.props.search.selectedDistrictsIds || [],
         surname: this.props.search.surname || '',
@@ -52,6 +53,11 @@ var UserManagement = React.createClass({
       },
     };
   },
+
+  getIsCurrentUserAdmin () {
+    return _.some(this.props.currentUser.userRoles.filter((x)=>x.expiryDate> this.state.today && x.effectiveDate <= this.state.today  ), ['roleId', 2] );
+  },
+
 
   buildSearchParams() {
     var searchParams = {
@@ -127,6 +133,7 @@ var UserManagement = React.createClass({
 
   render() {
     var districts = _.sortBy(this.props.districts, 'name');
+    let isCurrentUserAdmin = this.getIsCurrentUserAdmin();
 
     var numUsers = this.state.loading ? '...' : Object.keys(this.props.users).length;
 
@@ -194,9 +201,10 @@ var UserManagement = React.createClass({
                   <td>{ user.smUserId }</td>
                   <td>{ user.districtName }</td>
                   <td style={{ textAlign: 'right' }}>
-                    <ButtonGroup>
+                    <ButtonGroup> {  (isCurrentUserAdmin) && <div>
                       <DeleteButton name="User" hide={ !user.canDelete } onConfirm={ this.delete.bind(this, user) }/>
-                      <EditButton name="User" hide={ !user.canEdit } view pathname={ user.path }/>
+                      <EditButton name="User" hide={ !user.canEdit } view pathname={ user.path }/> </div>
+                    }
                     </ButtonGroup>
                   </td>
                 </tr>;
