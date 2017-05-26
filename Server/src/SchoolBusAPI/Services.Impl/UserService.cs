@@ -880,6 +880,62 @@ namespace SchoolBusAPI.Services.Impl
         }
 
         /// <summary>
+        ///  Added by Simon Di to delete a role from a user by administrator
+        /// </summary>
+        /// <remarks>Delete a role to a user</remarks>
+        /// <param name="id">id of User to update</param>
+        /// <param name="item"></param>
+        /// <response code="201">Role created for user</response>
+        public virtual IActionResult UsersIdDeleteRolePostAsync(int id, UserRoleViewModel item)
+        {
+            bool success = false;
+            bool exists = _context.Users.Any(x => x.Id == id);
+            if (exists && item != null)
+            {
+                 // check the role id
+                bool role_exists = _context.Roles.Any(x => x.Id == item.RoleId);
+                if (role_exists)
+                {
+                    User user = _context.Users
+                        .Include(x => x.District)
+                        .Include(x => x.GroupMemberships)
+                        .ThenInclude(y => y.Group)
+                        .Include(x => x.UserRoles)
+                        .ThenInclude(y => y.Role)
+                        .ThenInclude(z => z.RolePermissions)
+                        .ThenInclude(z => z.Permission)
+                        .First(x => x.Id == id);
+
+                    if (user.UserRoles != null)
+                    {
+                        // existing data, clear it.
+                        foreach (var userRole in user.UserRoles)
+                        {
+                            if (userRole.RoleId == item.RoleId)
+                            {
+                                UserRole delete = _context.UserRoles.First(x => x.RoleId == item.RoleId && x.Id == userRole.Id);
+                                _context.Remove(delete);
+                                break;
+                            }
+                        }
+                        _context.SaveChanges();
+                        success = true;
+                    }
+                }
+            }
+
+            if (success)
+            {
+                return new StatusCodeResult(201);
+            }
+            else
+            {
+                return new StatusCodeResult(400);
+            }
+
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <remarks>Create new user</remarks>
