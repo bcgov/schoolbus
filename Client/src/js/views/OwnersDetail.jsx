@@ -3,7 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { Well, Row, Col  } from 'react-bootstrap';
-import { Alert, Label, Button, ButtonGroup, Glyphicon  } from 'react-bootstrap';
+import { Alert, Label, Button, ButtonGroup, Glyphicon, Badge  } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
 import _ from 'lodash';
@@ -11,6 +11,7 @@ import _ from 'lodash';
 import HistoryListDialog from './dialogs/HistoryListDialog.jsx';
 import OwnersEditDialog from './dialogs/OwnersEditDialog.jsx';
 import SchoolBusesAddDialog from './dialogs/SchoolBusesAddDialog.jsx';
+import ContactEditDialog from './dialogs/ContactEditDialog.jsx';
 
 import * as Action from '../actionTypes';
 import * as Api from '../api';
@@ -35,6 +36,8 @@ var OwnersDetail = React.createClass({
     owner: React.PropTypes.object,
     ui: React.PropTypes.object,
     params: React.PropTypes.object,
+    router: React.PropTypes.object,
+    ownerContacts: React.PropTypes.object,
   },
 
   getInitialState() {
@@ -48,25 +51,69 @@ var OwnersDetail = React.createClass({
       showSchoolBusDialog: false,
 
       contact: {},
+      owner: this.props.owner,
 
       isNew: this.props.params.ownerId === '0',
 
       ui : {
         // Contacts
-        sortField: this.props.ui.sortField || 'name',
+        sortField: this.props.ui.sortField || 'workPhoneNumber',
         sortDesc: this.props.ui.sortDesc != false, // defaults to true
       },
     };
   },
 
   componentDidMount() {
-    this.fetch();
+
+    this.setState({
+      loading: false,
+      loadingContacts: false,
+    });
+    this.fetch().then(() => {
+      this.openContact(this.props);
+    });
+  },
+
+  componentWillReceiveProps(nextProps) {
+    if(!_.isEqual(nextProps.params, this.props.params)){
+      if(nextProps.params.contactId && !this.props.params.contactId){
+        this.openContact(nextProps);
+      }
+    }
+  },
+
+  openContact(props){
+    var contact = null;
+
+    if(props.params.contactId === '0'){
+      //New
+      contact = {
+        id: 0,
+        schoolBusOwner: props.owner,
+      };
+    } else if (props.params.contactId){
+      contact = props.ownerContacts[props.params.contactId];
+    }
+
+    if(contact){
+      this.openContactDialog(contact);
+    }
   },
 
   fetch() {
-    this.setState({ loading: true });
-    Api.getOwner(this.props.params.ownerId).finally(() => {
+    this.setState({
+      loading: true,
+      loadingContacts: true,
+    });
+    
+    var id = this.props.params.ownerId;
+
+    Api.getOwner(id).finally(() => {
       this.setState({ loading: false });
+    });
+
+    return Api.getOwnerContacts(id).finally(() => {
+      this.setState({ loadingContacts: false });
     });
   },
 
@@ -122,14 +169,58 @@ var OwnersDetail = React.createClass({
   },
 
   closeContactDialog() {
-    this.setState({ showContactDialog: false });
+    this.setState({ showContactDialog: false }, () => {
+      this.props.router.push({
+        pathname: this.props.owner.path,
+      });
+    });
+  },
+
+  getContacts(){
+    this.setState({ loadingContacts : true });
+    Api.getOwnerContacts(this.props.params.ownerId).finally(() => {
+      this.setState({ loadingContacts: false });
+    });
+  },
+
+  addContact(){
+    this.props.router.push({
+      pathname: `${ this.props.owner.path }/${ Constant.CONTACT_PATHNAME}/0`,
+    });
   },
 
   deleteContact(contact) {
-    console.debug(contact);
+    Api.deleteContact(contact).then(() => {
+
+      this.fetch();
+
+    });
   },
 
-  saveContact() {
+  saveContact(contact, owner) {
+
+    var isNew = (contact && contact.id === 0);
+    var newPrimary = (owner.primaryContact && owner.primaryContact.id === 0);
+
+    var contactPromise = isNew ? Api.addContact : Api.updateContact;
+      
+    contactPromise(contact).then(() => {
+
+      if(newPrimary){
+        owner.primaryContact.id = store.getState().models.contact.id;
+      }
+
+      //reflash contact table
+      this.getContacts();
+
+      return Api.updateOwner(owner);
+
+    }).finally(() => {
+
+      this.closeContactDialog();
+
+    });
+
   },
 
   showHistoryDialog() {
@@ -145,6 +236,7 @@ var OwnersDetail = React.createClass({
 
   render: function() {
     var owner = this.props.owner;
+    var primaryContactId = owner.primaryContact ? owner.primaryContact.id : null;
 
     var daysToInspection = owner.daysToInspection;
     if (owner.isOverdue) { daysToInspection *= -1; }
@@ -218,49 +310,6 @@ var OwnersDetail = React.createClass({
                 </div>;
               })()}
             </Well>
-            <Well>
-              <h3>Contacts <span className="pull-right">
-                <Unimplemented>
-                  <Button title="Add Contact" onClick={ this.addContact } bsSize="small"><Glyphicon glyph="plus" /></Button>
-                </Unimplemented>
-              </span></h3>
-              {(() => {
-                if (this.state.loading ) { return <div style={{ textAlign: 'center' }}><Spinner/></div>; }
-                if (!owner.contacts || owner.contacts.length === 0) { return <Alert bsStyle="success" style={{ marginTop: 10 }}>No contacts</Alert>; }
-
-                var contacts = _.sortBy(owner.contacts, this.state.ui.sortField);
-                if (this.state.ui.sortDesc) {
-                  _.reverse(contacts);
-                }
-
-                var headers = [
-                  { field: 'name',  title: 'Name'         },
-                  { field: 'phone', title: 'Phone Number' },
-                  { field: 'email', title: 'Email'        },
-                  { field: 'role',  title: 'Role'         },
-                  { field: 'blank' },
-                ];
-
-                return <SortTable id="contacts-list" sortField={ this.state.ui.sortField } sortDesc={ this.state.ui.sortDesc } onSort={ this.updateUIState } headers={ headers }>
-                  {
-                    _.map(contacts, (contact) => {
-                      return <tr key={ contact.id }>
-                        <td>{ contact.name }</td>
-                        <td>{ contact.phone }</td>
-                        <td>{ contact.email }</td>
-                        <td>{ contact.role }</td>
-                        <td style={{ textAlign: 'right' }}>
-                          <ButtonGroup>
-                            <DeleteButton name="Contact" hide={ !contact.canDelete } onConfirm={ this.deleteContact.bind(this, contact) }/>
-                            <EditButton name="Contact" view={ !contact.canEdit } onClick={ this.openContactDialog.bind(this, contact) }/>
-                          </ButtonGroup>
-                        </td>
-                      </tr>;
-                    })
-                  }
-                </SortTable>;
-              })()}
-            </Well>
           </Col>
           <Col md={6}>
             <Well>
@@ -268,6 +317,60 @@ var OwnersDetail = React.createClass({
               {(() => {
                 if (this.state.loading ) { return <div style={{ textAlign: 'center' }}><Spinner/></div>; }
                 if (!owner.notes || owner.notes.length === 0) { return <Alert bsStyle="success" style={{ marginTop: 10 }}>No comments</Alert>; }
+              })()}
+            </Well>
+          </Col>
+        </Row>
+        <Row>
+          <Col md={6}>
+            <Well>
+              <h3>Contacts</h3>
+              {(() => {
+                if (this.state.loadingContacts ) { return <div style={{ textAlign: 'center' }}><Spinner/></div>; }
+
+                var addContactButton = <Button title="Add Contact" onClick={this.addContact} bsSize="xsmall"><Glyphicon glyph="plus"/>&nbsp;<strong>Add</strong></Button>;
+                var primary = <Badge style={{backgroundColor: '#5cb85c', marginLeft:'20px'}}>Primary</Badge>;
+
+                if (this.props.ownerContacts === null || Object.keys(this.props.ownerContacts).length === 0) {
+                  return <Alert bsStyle="success">No contacts { addContactButton }</Alert>;
+                }
+
+                var contacts = _.sortBy(this.props.ownerContacts, this.state.ui.sortField);
+                if(this.state.ui.sortDesc) { 
+                  _.reverse(contacts);
+                }
+
+                var headers = [
+                  { title: 'Primary contact'},
+                  { field: 'workPhoneNumber', title: 'Phone'},
+                  { field: 'address1', title: 'Address'},
+                  { field: 'addContact', title: 'Add Contact', style: { testAlign: 'right'  }, node: addContactButton},
+                ];
+
+                return <SortTable id="contact-list" sortField={this.state.ui.sortField} sortDesc={this.state.ui.sortDesc} onSort={this.updateUIState} headers={ headers }>
+                  {
+
+                    _.map(contacts,(contact) => {
+                      return <tr key={ contact.id }>
+                        {(() => {
+                          if(contact.id === primaryContactId) {
+                            return <td>{primary}</td>;
+                          } else {
+                            return <td></td>;
+                          }                          
+                        })()}
+                        <td>{contact.workPhoneNumber}</td>
+                        <td>{contact.address1}</td>
+                        <td>
+                          <ButtonGroup>
+                            <DeleteButton name="Contact" hide={ !contact.canDelete } onConfirm={ this.deleteContact.bind(this, contact) }/>
+                            <EditButton name="Contact" view={ !contact.canEdit } pathname={ contact.path }/>
+                          </ButtonGroup>
+                        </td>
+                      </tr>;
+                    })
+                  }
+                </SortTable>;
               })()}
             </Well>
           </Col>
@@ -282,6 +385,10 @@ var OwnersDetail = React.createClass({
       { this.state.showSchoolBusDialog &&
         <SchoolBusesAddDialog show={ this.state.showSchoolBusDialog } onSave={ this.closeSchoolBusDialog } onClose={ this.closeSchoolBusDialog } />
       }
+      { this.state.showContactDialog && 
+        <ContactEditDialog show={ this.state.showContactDialog } onSave={ this.saveContact } onClose={ this.closeContactDialog } 
+        owner={ this.state.owner } contact={ this.state.contact }/>
+      }
     </div>;
   },
 });
@@ -291,6 +398,8 @@ function mapStateToProps(state) {
   return {
     owner: state.models.owner,
     ui: state.ui.contacts,
+    ownerContacts: state.models.ownerContacts,
+    contact: state.models.contact,
   };
 }
 
