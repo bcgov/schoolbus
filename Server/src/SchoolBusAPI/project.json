@@ -76,7 +76,7 @@
     "emitEntryPoint": true,
     "preserveCompilationContext": true,
     "debugType": "portable",
-    "xmlDoc": false,
+    "xmlDoc": true,
     "compile": {
       "exclude": [
         "wwwroot",
