@@ -38,6 +38,7 @@ var OwnersDetail = React.createClass({
     params: React.PropTypes.object,
     router: React.PropTypes.object,
     ownerContacts: React.PropTypes.object,
+    contact:React.PropTypes.object,
   },
 
   getInitialState() {
@@ -57,7 +58,7 @@ var OwnersDetail = React.createClass({
 
       ui : {
         // Contacts
-        sortField: this.props.ui.sortField || 'workPhoneNumber',
+        sortField: this.props.ui.sortField || 'name',
         sortDesc: this.props.ui.sortDesc != false, // defaults to true
       },
     };
@@ -193,34 +194,51 @@ var OwnersDetail = React.createClass({
     Api.deleteContact(contact).then(() => {
 
       this.fetch();
-
+      
+      History.logDeletedContact(this.props.owner, this.props.contact);
     });
   },
 
   saveContact(contact, owner) {
-
     var isNew = (contact && contact.id === 0);
-    var newPrimary = (owner.primaryContact && owner.primaryContact.id === 0);
+    
+    var oldPrimary = this.props.owner.primaryContact ? this.props.owner.primaryContact : null;
+    var newPrimary = owner.primaryContact ? owner.primaryContact : null;
+    var updatePrimary = false;
+    //create new contact also set it as primary
+    var isNewPrimaryContact = (newPrimary != null && newPrimary.id == 0);
+
+    if(oldPrimary == null && newPrimary != null){
+      updatePrimary = true;
+    } else if(oldPrimary != null){
+      if(newPrimary == null || (oldPrimary.id != newPrimary.id)){
+        updatePrimary = true;
+      }
+    }
 
     var contactPromise = isNew ? Api.addContact : Api.updateContact;
-      
+
     contactPromise(contact).then(() => {
-
-      if(newPrimary){
-        owner.primaryContact.id = store.getState().models.contact.id;
+      if(isNew){
+        History.logNewContact(this.props.owner, this.props.contact);
+      } else {
+        History.logModifiedContact(this.props.owner, this.props.contact);
       }
-
+      
+    }).finally(() => {
+      
+      if(updatePrimary){
+        if(isNewPrimaryContact){
+          owner.primaryContact.id = store.getState().models.contact.id;
+        }
+    
+        Api.updateOwner(owner);
+      }
+      
       //reflash contact table
       this.getContacts();
-
-      return Api.updateOwner(owner);
-
-    }).finally(() => {
-
       this.closeContactDialog();
-
     });
-
   },
 
   showHistoryDialog() {
@@ -329,7 +347,7 @@ var OwnersDetail = React.createClass({
                 if (this.state.loadingContacts ) { return <div style={{ textAlign: 'center' }}><Spinner/></div>; }
 
                 var addContactButton = <Button title="Add Contact" onClick={this.addContact} bsSize="xsmall"><Glyphicon glyph="plus"/>&nbsp;<strong>Add</strong></Button>;
-                var primary = <Badge style={{backgroundColor: '#5cb85c', marginLeft:'20px'}}>Primary</Badge>;
+                var primary = <Badge style={{backgroundColor: '#5cb85c', marginLeft:'10px'}}>Primary</Badge>;
 
                 if (this.props.ownerContacts === null || Object.keys(this.props.ownerContacts).length === 0) {
                   return <Alert bsStyle="success">No contacts { addContactButton }</Alert>;
@@ -340,8 +358,16 @@ var OwnersDetail = React.createClass({
                   _.reverse(contacts);
                 }
 
+                var index = _.findIndex(contacts, {id: primaryContactId});
+                if(index != -1 && contacts.length > 1){
+                  var temp = contacts[index];
+                  contacts.splice(index, 1);
+                  contacts.unshift(temp);
+                }
+
                 var headers = [
-                  { title: 'Primary contact'},
+                  { field: 'primary', title: ' '},
+                  { field: 'name', title: 'Name' },
                   { field: 'workPhoneNumber', title: 'Phone'},
                   { field: 'address1', title: 'Address'},
                   { field: 'addContact', title: 'Add Contact', style: { testAlign: 'right'  }, node: addContactButton},
@@ -349,7 +375,7 @@ var OwnersDetail = React.createClass({
 
                 return <SortTable id="contact-list" sortField={this.state.ui.sortField} sortDesc={this.state.ui.sortDesc} onSort={this.updateUIState} headers={ headers }>
                   {
-
+                    
                     _.map(contacts,(contact) => {
                       return <tr key={ contact.id }>
                         {(() => {
@@ -359,6 +385,7 @@ var OwnersDetail = React.createClass({
                             return <td></td>;
                           }                          
                         })()}
+                        <td>{(contact.givenName ? contact.givenName : '') + ' ' + contact.surname}</td>
                         <td>{contact.workPhoneNumber}</td>
                         <td>{contact.address1}</td>
                         <td>
