@@ -156,13 +156,14 @@ namespace SchoolBusAPI.Services.Impl
         /// </summary>
 
         /// <param name="id">id of Contact to fetch</param>
+        /// <param name="body">object of contact to be updated</param>>
         /// <response code="200">OK</response>
         /// <response code="404">Contact not found</response>
 
         public virtual IActionResult ContactsIdPutAsync (int id, Contact body)        
         {
             var exists = _context.Contacts.Any(a => a.Id == id);
-            if (exists && id == body.Id)
+            if (exists && body.Id == id)
             {
                 _context.Contacts.Update(body);
                 // Save the changes

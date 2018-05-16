@@ -842,7 +842,9 @@ export function getPermissions() {
 function parseContact(contact){
   contact.path = contact.schoolBusOwner ? `${ Constant.OWNERS_PATHNAME }/${ contact.schoolBusOwner.id }/${ Constant.CONTACT_PATHNAME }/${ contact.id }` : null;
   contact.url = contact.path ? `#/${ contact.path }` : null;
-
+  contact.name = `${ firstLastName(contact.givenName, contact.surname) }`;
+  contact.historyEntity = History.makeHistoryEntity(History.CONTACT, contact);
+  
   contact.canDelete = true;
   contact.canEdit = true;
 }

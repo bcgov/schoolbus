@@ -22,8 +22,8 @@ var EditDialog = React.createClass({
   },
 
   save() {
-    if (this.props.isValid()) {
-      if (this.props.didChange()) {
+    if (this.props.isValid() === true) {
+      if (this.props.didChange() === true) {
         this.props.onSave();
       } else {
         this.props.onClose();
