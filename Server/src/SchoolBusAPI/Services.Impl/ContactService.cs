@@ -20,13 +20,14 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SchoolBusAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace SchoolBusAPI.Services.Impl
 { 
     /// <summary>
     /// 
     /// </summary>
-    public class ContactService : IContactService
+    public class ContactService : ServiceBase, IContactService
     {
 
         private readonly DbAppContext _context;
@@ -34,7 +35,7 @@ namespace SchoolBusAPI.Services.Impl
         /// <summary>
         /// Create a service and set the database context
         /// </summary>
-        public ContactService (DbAppContext context)
+        public ContactService (IHttpContextAccessor httpContextAccessor, DbAppContext context) : base(httpContextAccessor, context)
         {
             _context = context;
         }
@@ -207,8 +208,6 @@ namespace SchoolBusAPI.Services.Impl
                 if (exists)
                 {
                     _context.Contacts.Update(item);
-                    _context.SaveChanges();
-                    return new ObjectResult(item);
                 }
                 else
                 {
