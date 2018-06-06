@@ -112,8 +112,32 @@ namespace SchoolBusAPI
                         {
                             // ensure that the record is touched in the database
                             data.LastUpdateTimestamp = DateTime.UtcNow;
+                            //update records in SchoolBus table
+                            bool exists = context.SchoolBuss.Any(x => x.CCWDataId == cCWData.Id);
+                            if (exists)
+                            {
+                                SchoolBus bus = context.SchoolBuss.First(a => a.CCWDataId == cCWData.Id);
+                                if (cCWData.ICBCRegistrationNumber != null && bus.ICBCRegistrationNumber != null && !cCWData.ICBCRegistrationNumber.Equals(bus.ICBCRegistrationNumber))
+                                {
+                                    bus.ICBCRegistrationNumber = cCWData.ICBCRegistrationNumber;
+                                }
+
+                                if (cCWData.ICBCVehicleIdentificationNumber != null && bus.VehicleIdentificationNumber !=null && !cCWData.ICBCVehicleIdentificationNumber.Equals(bus.VehicleIdentificationNumber))
+                                {
+                                    bus.VehicleIdentificationNumber = cCWData.ICBCVehicleIdentificationNumber;
+                                }
+
+                                if (cCWData.ICBCLicencePlateNumber != null && bus.LicencePlateNumber != null && !cCWData.ICBCLicencePlateNumber.Equals(bus.LicencePlateNumber))
+                                {
+                                    bus.LicencePlateNumber = cCWData.ICBCLicencePlateNumber;
+                                }
+
+                                context.SchoolBuss.Update(bus);
+                            }
+                            
                             context.CCWDatas.Update(data);
                             context.SaveChanges();
+                            
                         }
                     }
                 }

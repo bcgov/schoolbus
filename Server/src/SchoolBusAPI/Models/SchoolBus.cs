@@ -30,6 +30,10 @@ namespace SchoolBusAPI.Models
 
     public partial class SchoolBus : AuditableEntity, IEquatable<SchoolBus>
     {
+        private string _ICBCRegistrationNumber;
+        private string _ICBCLicencePlateNumber;
+        private string _ICBCVehicleIdentificationNumber;
+
         /// <summary>
         /// Default constructor, required by entity framework
         /// </summary>
@@ -85,9 +89,9 @@ namespace SchoolBusAPI.Models
 
 
 
-            this.ICBCRegistrationNumber = ICBCRegistrationNumber;
-            this.LicencePlateNumber = LicencePlateNumber;
-            this.VehicleIdentificationNumber = VehicleIdentificationNumber;
+            _ICBCRegistrationNumber = ICBCRegistrationNumber;
+            _ICBCLicencePlateNumber = LicencePlateNumber;
+            _ICBCVehicleIdentificationNumber = VehicleIdentificationNumber;
             this.SchoolBusOwner = SchoolBusOwner;
             this.PermitNumber = PermitNumber;
             this.PermitIssueDate = PermitIssueDate;
@@ -163,17 +167,53 @@ namespace SchoolBusAPI.Models
         [MetaDataExtension (Description = "The registration number of the vehicle as entered by the user and confirmed by the CCW Web Services")]
         [MaxLength(40)]
         
-        public string ICBCRegistrationNumber { get; set; }
-        
+        public string ICBCRegistrationNumber
+        {
+            get
+            {
+                if (CCWData != null && CCWData.ICBCRegistrationNumber != null)
+                {
+                    return CCWData.ICBCRegistrationNumber;
+                }
+                else
+                {
+                    return _ICBCRegistrationNumber;
+                }
+            }
+            set
+            {
+                _ICBCRegistrationNumber = value;
+            }
+        }
+
         /// <summary>
         /// The License Plate Number for the vehicle
         /// </summary>
         /// <value>The License Plate Number for the vehicle</value>
         [MetaDataExtension (Description = "The License Plate Number for the vehicle")]
         [MaxLength(15)]
-        
-        public string LicencePlateNumber { get; set; }
-        
+
+        public string LicencePlateNumber
+        {
+            get
+            {
+                if (CCWData != null && CCWData.ICBCLicencePlateNumber != null)
+                {
+                    return CCWData.ICBCLicencePlateNumber;
+                }
+                else
+                {
+                    return _ICBCLicencePlateNumber;
+                }
+            }
+
+            set
+            {
+                _ICBCLicencePlateNumber = value;
+            }
+
+        }
+
         /// <summary>
         /// A code used by the automotive industry to uniquely identify individual motor vehicles. A vehicle identification number is frequently referred to using the acronym VIN and it is occasionally referred to as a chassis number.
         /// </summary>
@@ -181,8 +221,26 @@ namespace SchoolBusAPI.Models
         [MetaDataExtension (Description = "A code used by the automotive industry to uniquely identify individual motor vehicles. A vehicle identification number is frequently referred to using the acronym VIN and it is occasionally referred to as a chassis number.")]
         [MaxLength(17)]
         
-        public string VehicleIdentificationNumber { get; set; }
-        
+        public string VehicleIdentificationNumber
+        {
+            get
+            {
+                if (CCWData != null && CCWData.ICBCVehicleIdentificationNumber != null)
+                {
+                    return CCWData.ICBCVehicleIdentificationNumber;
+                }
+                else
+                {
+                    return _ICBCVehicleIdentificationNumber;
+                }
+            }
+
+            set
+            {
+                _ICBCVehicleIdentificationNumber = value;
+            }
+        }
+
         /// <summary>
         /// A foreign key reference to the system-generated unique identifier for School Bus Owner
         /// </summary>
@@ -535,19 +593,19 @@ namespace SchoolBusAPI.Models
                     this.SchoolBusSeatingCapacity.Equals(other.SchoolBusSeatingCapacity)
                 ) &&                 
                 (
-                    this.ICBCRegistrationNumber == other.ICBCRegistrationNumber ||
-                    this.ICBCRegistrationNumber != null &&
-                    this.ICBCRegistrationNumber.Equals(other.ICBCRegistrationNumber)
+                    _ICBCRegistrationNumber == other.ICBCRegistrationNumber ||
+                    _ICBCRegistrationNumber != null &&
+                    _ICBCRegistrationNumber.Equals(other.ICBCRegistrationNumber)
                 ) &&                 
                 (
-                    this.LicencePlateNumber == other.LicencePlateNumber ||
-                    this.LicencePlateNumber != null &&
-                    this.LicencePlateNumber.Equals(other.LicencePlateNumber)
+                    _ICBCLicencePlateNumber == other.LicencePlateNumber ||
+                    _ICBCLicencePlateNumber != null &&
+                    _ICBCLicencePlateNumber.Equals(other.LicencePlateNumber)
                 ) &&                 
                 (
-                    this.VehicleIdentificationNumber == other.VehicleIdentificationNumber ||
-                    this.VehicleIdentificationNumber != null &&
-                    this.VehicleIdentificationNumber.Equals(other.VehicleIdentificationNumber)
+                    _ICBCVehicleIdentificationNumber == other.VehicleIdentificationNumber ||
+                    _ICBCVehicleIdentificationNumber != null &&
+                    _ICBCVehicleIdentificationNumber.Equals(other.VehicleIdentificationNumber)
                 ) &&                 
                 (
                     this.SchoolBusOwner == other.SchoolBusOwner ||
@@ -701,17 +759,17 @@ namespace SchoolBusAPI.Models
                     hash = hash * 59 + this.BodyTypeCode.GetHashCode();
                 }                
                                                    
-                hash = hash * 59 + this.SchoolBusSeatingCapacity.GetHashCode();                if (this.ICBCRegistrationNumber != null)
+                hash = hash * 59 + this.SchoolBusSeatingCapacity.GetHashCode();                if (_ICBCRegistrationNumber != null)
                 {
-                    hash = hash * 59 + this.ICBCRegistrationNumber.GetHashCode();
+                    hash = hash * 59 + _ICBCRegistrationNumber.GetHashCode();
                 }                
-                                if (this.LicencePlateNumber != null)
+                                if (_ICBCLicencePlateNumber != null)
                 {
-                    hash = hash * 59 + this.LicencePlateNumber.GetHashCode();
+                    hash = hash * 59 + _ICBCLicencePlateNumber.GetHashCode();
                 }                
-                                if (this.VehicleIdentificationNumber != null)
+                                if (_ICBCVehicleIdentificationNumber != null)
                 {
-                    hash = hash * 59 + this.VehicleIdentificationNumber.GetHashCode();
+                    hash = hash * 59 + _ICBCVehicleIdentificationNumber.GetHashCode();
                 }                
                                    
                 if (this.SchoolBusOwner != null)
