@@ -163,6 +163,22 @@ namespace SchoolBusAPI.Services.Impl
 
         public virtual IActionResult ContactsIdPutAsync (int id, Contact body)        
         {
+            //adjust the school bus owner
+            if(body.SchoolBusOwner != null)
+            {
+                int owner_id = body.SchoolBusOwner.Id;
+                bool owner_exists = _context.SchoolBusOwners.Any(a => a.Id == owner_id);
+                if (owner_exists)
+                {
+                    SchoolBusOwner owner = _context.SchoolBusOwners.First(a => a.Id == owner_id);
+                    body.SchoolBusOwner = owner;
+                }
+                else
+                {
+                    body.SchoolBusOwner = null;
+                }
+            }
+
             var exists = _context.Contacts.Any(a => a.Id == id);
             if (exists && body.Id == id)
             {
@@ -182,8 +198,8 @@ namespace SchoolBusAPI.Services.Impl
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="body"></param>
-        /// <returns></returns>
+        /// <param name="item"></param>
+        /// <response code="201">contact create</response>
         public virtual IActionResult ContactsPostAsync(Contact item)
         {
             if (item != null)
