@@ -185,18 +185,17 @@ namespace SchoolBusAPI
             string newUri = QueryHelpers.AddQueryString(targetUrl, parametersToAdd);
 
             // call the microservice
+            HttpClient client = new HttpClient();
 
             try
             {
-                HttpClient client = new HttpClient();
-
                 var request = new HttpRequestMessage(HttpMethod.Get, newUri);
                 request.Headers.Clear();
                 // transfer over the request headers.
                 request.Headers.Add("SM_UNIVERSALID", cCW_userId);
                 request.Headers.Add("SMGOV_USERGUID", cCW_guid);
                 request.Headers.Add("SM_AUTHDIRNAME", cCW_directory);
-                
+
                 Task<HttpResponseMessage> responseTask = client.SendAsync(request);
                 responseTask.Wait();
 
@@ -214,6 +213,22 @@ namespace SchoolBusAPI
             {
                 result = null;
             }
+
+            finally
+            {
+                if (client != null)
+                {
+                    try
+                    {
+                        client.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                    }
+                }
+            }
+
             return result;
         }
     }
