@@ -66,7 +66,7 @@ objects:
                 - name: DEPLOY_SUFFIX
                   value: ${SUFFIX}
                 - name: APP_NAME
-                  value: ${NAME}
+                  value: ${PROJECT_NAME}
       test: false
       triggers:
         - imageChangeParams:
