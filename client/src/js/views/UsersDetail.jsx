@@ -367,9 +367,11 @@ class UsersDetail extends React.Component {
             </Col>
           </Row>
         </div>
-        {this.state.showEditDialog && (
-          <UsersEditDialog show={this.state.showEditDialog} onSave={this.onSaveEdit} onClose={this.onCloseEdit} />
-        )}
+        <Authorize permissions={Constant.PERMISSION_USER_W}>
+          {this.state.showEditDialog && (
+            <UsersEditDialog show={this.state.showEditDialog} onSave={this.onSaveEdit} onClose={this.onCloseEdit} />
+          )}
+        </Authorize>
         {this.state.showUserRoleDialog && (
           <UserRoleAddDialog
             show={this.state.showUserRoleDialog}
