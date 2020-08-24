@@ -5,15 +5,10 @@ import { connect } from 'react-redux';
 import { hasAllPermissions, hasSomePermissions } from '../utils/permissions';
 
 const Authorize = ({ children, userPermissions, permissions, matchAll }) => {
-  let permissionsToCheck = [];
-
-  if (typeof permissions === 'string') permissionsToCheck.push(permissions);
-  else permissionsToCheck = [...permissions];
-
   let valid = false;
 
-  if (matchAll) valid = hasAllPermissions(userPermissions, permissionsToCheck);
-  else valid = hasSomePermissions(userPermissions, permissionsToCheck);
+  if (matchAll) valid = hasAllPermissions(userPermissions, permissions);
+  else valid = hasSomePermissions(userPermissions, permissions);
 
   if (valid) return <>{children}</>;
   else return <></>;

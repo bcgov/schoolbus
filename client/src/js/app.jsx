@@ -135,13 +135,13 @@ const App = () => {
             component={OwnersDetail}
           />
           <Route path={Constant.NOTIFICATIONS_PATHNAME} component={Notifications} />
-          {hasAllPermissions(store.getState().user.permissions, [Constant.PERMISSION_USER_R]) && (
+          {hasAllPermissions(store.getState().user.permissions, Constant.PERMISSION_USER_R) && (
             <>
               <Route path={Constant.USERS_PATHNAME} component={Users} />
               <Route path={`${Constant.USERS_PATHNAME}/:userId`} component={UsersDetail} />
             </>
           )}
-          {hasAllPermissions(store.getState().user.permissions, [Constant.PERMISSION_ROLE_R]) && (
+          {hasAllPermissions(store.getState().user.permissions, Constant.PERMISSION_ROLE_R) && (
             <>
               <Route path={Constant.ROLES_PATHNAME} component={Roles} />
               <Route path={`${Constant.ROLES_PATHNAME}/:roleId`} component={RolesDetail} />
