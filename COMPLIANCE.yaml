@@ -4,8 +4,8 @@ description: |
   compliance.
 spec:
   - name: PIA
-    status: PIA_STATUS_HERE
-    last-updated: '2020-12-03T20:35:05.467Z'
+    status: Completed - TRAN16045
+    last-updated: '2016-12-12'
   - name: STRA
-    status: STRA_STATUS_HERE
-    last-updated: '2020-12-03T20:35:05.467Z'
+    status: Completed - ISO27001 (RS3501)
+    last-updated: '2016-12-12'
