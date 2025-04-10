@@ -38,17 +38,17 @@ objects:
                 - name: POSTGRESQL_USER
                   valueFrom:
                     secretKeyRef:
-                      name: sbi-db-dev
+                      name: ${NAME}-${ENV}
                       key: database-user
                 - name: POSTGRESQL_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: sbi-db-dev
+                      name: ${NAME}-${ENV}
                       key: database-password
                 - name: POSTGRESQL_ADMIN_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: sbi-db-dev
+                      name: ${NAME}-${ENV}
                       key: admin-password
                 - name: POSTGRESQL_DATABASE
                   value: ${POSTGRESQL_DATABASE_NAME}
@@ -96,7 +96,7 @@ objects:
           volumes:
             - name: "${NAME}-${ENV}-data"
               persistentVolumeClaim:
-                claimName: sb-db-dev-psql17-pvc
+                claimName: ${NAME}-${ENV}-psql16-pvc
       test: false
   - kind: PersistentVolumeClaim
     apiVersion: v1
