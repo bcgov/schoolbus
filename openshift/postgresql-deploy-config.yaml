@@ -96,19 +96,8 @@ objects:
           volumes:
             - name: "${NAME}-${ENV}-data"
               persistentVolumeClaim:
-                claimName: ${NAME}-${ENV}-pvc
+                claimName: ${NAME}-${ENV}-psql16-pvc
       test: false
-      triggers:
-        - type: ConfigChange
-        - imageChangeParams:
-            automatic: true
-            containerNames:
-              - ${NAME}-${ENV}
-            from:
-              kind: ImageStreamTag
-              name: ${IMAGE_STREAM_TAG}
-              namespace: e82e9a-tools
-          type: ImageChange
   - kind: PersistentVolumeClaim
     apiVersion: v1
     metadata:
@@ -166,7 +155,7 @@ parameters:
   - description: ImageStreamTag
     displayName: ImageStreamTag
     name: IMAGE_STREAM_TAG
-    value: "postgresql-10-rhel8:1"
+    value: "postgresql-16-rhel8:1"
   - name: POSTGRESQL_DATABASE_NAME
     displayName: PostgreSQL Database Name
     description: The name of the PostgreSQL database.
