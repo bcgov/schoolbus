@@ -1,4 +1,4 @@
-﻿/*
+/*
  * REST API Documentation for Schoolbus
  *
  * This project is to replace the existing permitting and inspection scheduling functionality in AVIS  such that the mainframe application can be retired. 
@@ -49,6 +49,7 @@ namespace SchoolBusAPI.Extensions
             services.AddScoped<IUserService, UserService>();            
             services.AddScoped<ICcwJobService, CcwJobService>();
             services.AddScoped<ICCWNotificationService, CCWNotificationService>();
+            services.AddScoped<IMigrationService, MigrationService>();
 
             var mappingConfig = new MapperConfiguration(cfg =>
             {
